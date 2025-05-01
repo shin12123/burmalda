@@ -4,31 +4,37 @@
   <meta charset="UTF-8">
   <title>Casino | Login / Admin</title>
   <meta name="viewport" content="width=device-width,initial-scale=1">
+  <!-- ваш глобальный стиль казино -->
   <link rel="stylesheet" href="styles.css">
+
+  <!-- немного локальных правок -->
   <style>
     .admin-btn  {margin-top:20px;font-size:.9rem;color:var(--casino-gold);cursor:pointer}
     .user-table {width:100%;margin-top:15px;border-collapse:collapse;font-size:.9rem}
     .user-table th,.user-table td{border:1px solid var(--casino-gold);padding:6px;text-align:center}
-    .del-btn{cursor:pointer;color:#ff7070}
-    .hidden{display:none}
+    .del-btn    {cursor:pointer;color:#ff6b6b}
+    .edit-btn   {cursor:pointer;color:#51c5ff}
+    .hidden     {display:none}
   </style>
 </head>
 <body>
 <div class="casino-container login-container">
 
-  <!-- ======== LOGIN ======== -->
+  <!-- ========= LOGIN ========= -->
   <h1 class="casino-title">LOGIN</h1>
   <form id="loginForm" class="login-form">
     <input class="login-input"  type="email"    id="email"    placeholder="Email"  required>
     <input class="login-input"  type="password" id="password" placeholder="Пароль" required>
     <button class="login-button" type="submit">Увійти</button>
     <div id="message" class="login-message"></div>
-    <div class="admin-btn" id="openAdmin"></div>
+    <div class="admin-btn" id="openAdmin">⇢ Управління користувачами</div>
   </form>
 
-  <!-- ======== ADMIN PANEL ======== -->
+  <!-- ========= ADMIN PANEL ========= -->
   <div id="adminPanel" class="hidden">
     <h1 class="casino-title">USERS</h1>
+
+    <!-- форма додавання -->
     <form id="addForm" class="login-form">
       <input class="login-input" type="text"     id="newName"     placeholder="Ім’я"     required>
       <input class="login-input" type="email"    id="newEmail"    placeholder="Email"    required>
@@ -37,104 +43,110 @@
       <button class="login-button" type="submit">Додати</button>
     </form>
 
+    <!-- таблиця користувачів -->
     <table class="user-table" id="userTable"></table>
+
     <div class="admin-btn" id="backToLogin">⇠ Повернутися до входу</div>
   </div>
 
 </div>
 
 <script>
-    /* ---------- демо + мердж ---------- */
-    const demo=[
-      {email:'test@mail.com',         password:'1234',  name:'Тест', balance:100},
-      {email:'bond2005138@gmail.com', password:'12345', name:'Демо', balance:20}
-      {email:'dganzina@gmail.com', password:'23325', name:'Дa', balance:202}
-    ];
-    const saved = JSON.parse(localStorage.accounts || '[]');
-    demo.forEach(d=>{
-      const i=saved.findIndex(u=>u.email===d.email);
-      if(i===-1) saved.push(d);                   // нема — додаємо
-    });                                           // (якщо email існує, нічого не чіпаємо)
-    localStorage.accounts = JSON.stringify(saved);
-    
-    /* ---------- утиліти ---------- */
-    const $ = id=>document.getElementById(id);
-    const acc   = ()=>JSON.parse(localStorage.accounts);
-    const save  = a => localStorage.accounts = JSON.stringify(a);
-    const login = u => {localStorage.currentUser = JSON.stringify(u); location='index.html';};
-    
-    /* ---------- логін ---------- */
-    $('loginForm').onsubmit = e=>{
-      e.preventDefault(); $('message').textContent='';
-      const email=$('email').value.trim().toLowerCase(), pass=$('password').value;
-      const u=acc().find(u=>u.email===email);
-      if(!u)               {$('message').textContent='Email не знайдено'; return;}
-      if(u.password!==pass){$('message').textContent='Невірний пароль';  return;}
-      login(u);
-    };
-    
-    /* ---------- admin ---------- */
-    function renderTable(){
-      const rows = acc().map((u,i)=>`
-       <tr>
-         <td>${i+1}</td><td>${u.name}</td><td>${u.email}</td><td>${u.balance}</td>
-         <td>
-           <span class="edit-btn" data-i="${i}">✎</span>
-           &nbsp;
-           <span class="del-btn"  data-i="${i}">✖</span>
-         </td>
-       </tr>`).join('');
-      $('userTable').innerHTML=
-       `<tr><th>#</th><th>Ім’я</th><th>Email</th><th>Баланс</th><th>Дія</th></tr>${rows}`;
-    }
-    
-    $('openAdmin').onclick=()=>{$('loginForm').classList.add('hidden');$('adminPanel').classList.remove('hidden');renderTable();};
-    $('backToLogin').onclick=()=>{$('adminPanel').classList.add('hidden');$('loginForm').classList.remove('hidden');};
-    
-    /* додати */
-    $('addForm').onsubmit=e=>{
-      e.preventDefault();
-      const name=$('newName').value.trim(),
-            email=$('newEmail').value.trim().toLowerCase(),
-            pwd=$('newPass').value,
-            bal=+$('newBalance').value;
-      let list=acc();
-      if(list.find(u=>u.email===email)){alert('Email уже існує');return;}
-      list.push({email,password:pwd,name,balance:bal}); save(list); e.target.reset(); renderTable();
-    };
-    
-    /* делегування: edit / delete */
-    $('userTable').onclick=e=>{
-      const idx = +e.target.dataset.i;
-      if(e.target.classList.contains('del-btn')){
-          let list=acc(); list.splice(idx,1); save(list); renderTable(); return;
-      }
-      if(!e.target.classList.contains('edit-btn')) return;
-    
-      /* --- віконце редагування --- */
-      const user = acc()[idx];
-      const html = `
-        <div id="editBox" style="position:fixed;inset:0;background:#000a;display:flex;justify-content:center;align-items:center;">
-          <div style="background:#1a1a26;padding:25px 35px;border:2px solid var(--casino-gold);border-radius:8px;min-width:260px">
-            <h3 style="margin-top:0">Edit&nbsp;${user.email}</h3>
-            <label>Ім’я</label>     <input id="eName"  value="${user.name}"     class="login-input">
-            <label>Пароль</label>   <input id="ePass"  value="${user.password}" class="login-input">
-            <label>Баланс</label>   <input id="eBal"   value="${user.balance}"  class="login-input" type="number">
-            <button id="saveEdit" class="login-button" style="margin-top:15px">Зберегти</button>
-          </div>
-        </div>`;
-      document.body.insertAdjacentHTML('beforeend',html);
-    
-      $('saveEdit').onclick=()=>{
-        const list=acc();
-        list[idx].name     = $('eName').value.trim();
-        list[idx].password = $('ePass').value;
-        list[idx].balance  = +$('eBal').value;
-        save(list); renderTable();
-        document.getElementById('editBox').remove();
-      };
-    };
-    </script>
-    </body>
-    </html>
-    
+/* ---------- 1. Демо + розумна ініціалізація ---------- */
+const demo = [
+  {email:'test@mail.com',          password:'1234',  name:'Тест', balance:100},
+  {email:'bond2005138@gmail.com',  password:'12345', name:'Демо', balance:20},
+  {email:'d.ganzina@gmail.com',  password:'23325', name:'Демо', balance:20}
+];
+const saved = JSON.parse(localStorage.getItem('accounts') || '[]');
+demo.forEach(d=>{
+  if(!saved.some(u=>u.email===d.email)) saved.push(d);
+});
+localStorage.setItem('accounts', JSON.stringify(saved));
+
+/* ---------- 2. Утиліти ---------- */
+const $    = id=>document.getElementById(id);
+const acc  = ()=>JSON.parse(localStorage.accounts);
+const save = a => localStorage.accounts = JSON.stringify(a);
+const login= u => { localStorage.currentUser = JSON.stringify(u); location='index.html'; };
+
+/* ---------- 3. Логін ---------- */
+$('loginForm').onsubmit = e=>{
+  e.preventDefault(); $('message').textContent='';
+  const email=$('email').value.trim().toLowerCase();
+  const pass =$ ('password').value;
+  const user =acc().find(u=>u.email===email);
+  if(!user)              { $('message').textContent='Email не знайдено';  return; }
+  if(user.password!==pass){ $('message').textContent='Невірний пароль';   return; }
+  login(user);
+};
+
+/* ---------- 4. Admin-панель ---------- */
+function renderTable(){
+  const rows = acc().map((u,i)=>`
+    <tr>
+      <td>${i+1}</td>
+      <td>${u.name}</td>
+      <td>${u.email}</td>
+      <td>${u.balance}</td>
+      <td>
+        <span class="edit-btn" data-i="${i}">✎</span>&nbsp;
+        <span class="del-btn"  data-i="${i}">✖</span>
+      </td>
+    </tr>`).join('');
+  $('userTable').innerHTML =
+    `<tr><th>#</th><th>Ім’я</th><th>Email</th><th>Баланс</th><th>Дія</th></tr>${rows}`;
+}
+
+/* перемикачі */
+$('openAdmin').onclick  =()=>{ $('loginForm').classList.add('hidden'); $('adminPanel').classList.remove('hidden'); renderTable(); };
+$('backToLogin').onclick=()=>{ $('adminPanel').classList.add('hidden'); $('loginForm').classList.remove('hidden'); };
+
+/* додати користувача */
+$('addForm').onsubmit = e=>{
+  e.preventDefault();
+  const name=$('newName').value.trim(),
+        email=$('newEmail').value.trim().toLowerCase(),
+        pwd=$('newPass').value,
+        bal=+$('newBalance').value;
+  let list=acc();
+  if(list.find(u=>u.email===email)){ alert('Email уже існує'); return; }
+  list.push({email,password:pwd,name,balance:bal}); save(list);
+  e.target.reset(); renderTable();
+};
+
+/* делегування: edit / delete */
+$('userTable').onclick = e=>{
+  const idx = +e.target.dataset.i;
+  if(e.target.classList.contains('del-btn')){        // delete
+    let list=acc(); list.splice(idx,1); save(list); renderTable(); return;
+  }
+  if(!e.target.classList.contains('edit-btn')) return;
+
+  /* --- модальне редагування --- */
+  const u = acc()[idx];
+  const box = document.createElement('div');
+  box.id='editBox';
+  box.style='position:fixed;inset:0;background:#000a;display:flex;justify-content:center;align-items:center;';
+  box.innerHTML = `
+    <div style="background:#1a1a26;padding:25px 35px;border:2px solid var(--casino-gold);border-radius:8px;min-width:260px">
+      <h3 style="margin-top:0">Edit&nbsp;${u.email}</h3>
+      <label>Ім’я</label>     <input id="eName" class="login-input" value="${u.name}">
+      <label>Пароль</label>   <input id="ePass" class="login-input" value="${u.password}">
+      <label>Баланс</label>   <input id="eBal"  class="login-input" type="number" value="${u.balance}">
+      <button id="saveEdit" class="login-button" style="margin-top:15px">Зберегти</button>
+    </div>`;
+  document.body.appendChild(box);
+
+  $('saveEdit').onclick = ()=>{
+    const list=acc();
+    list[idx].name     = $('eName').value.trim();
+    list[idx].password = $('ePass').value;
+    list[idx].balance  = +$('eBal').value;
+    save(list); renderTable();
+    box.remove();
+  };
+};
+</script>
+</body>
+</html>
