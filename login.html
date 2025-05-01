@@ -37,6 +37,7 @@
             </form>
             <div class="login-hint">
                 Нет аккаунта? <a href="#" id="register-link">Зарегистрироваться</a>
+                <br><a href="#" id="clear-storage-link" class="clear-storage">Очистить данные</a>
             </div>
             <div id="login-message" class="login-message"></div>
         </div>
@@ -81,13 +82,19 @@
                     "email": "newuser@example.com",
                     "password": "securepassword",
                     "name": "New User",
-                    "balance": 100
+                    "balance": 0
                 },
                 {
                     "email": "anotheruser@example.com",
                     "password": "anotherpassword",
                     "name": "Another User",
                     "balance": 50
+                }
+                {
+                    "email": "arnier@gmail.com",
+                    "password": "arnier@gmail.com",
+                    "name": "Another User",
+                    "balance": 55
                 }
             ];
             
@@ -148,6 +155,23 @@
                 loginContainer.style.display = 'block';
             });
             
+            // Обработчик для очистки localStorage
+            const clearStorageLink = document.getElementById('clear-storage-link');
+            clearStorageLink.addEventListener('click', function(e) {
+                e.preventDefault();
+                // Очистка localStorage
+                localStorage.removeItem('currentUser');
+                // Или для очистки всего localStorage:
+                // localStorage.clear();
+                
+                loginMessage.textContent = 'Данные успешно очищены!';
+                loginMessage.style.color = 'var(--casino-gold)';
+                
+                setTimeout(() => {
+                    loginMessage.textContent = '';
+                }, 3000);
+            });
+            
             // Обработка формы регистрации
             const registerForm = document.getElementById('register-form');
             const registerMessage = document.getElementById('register-message');
@@ -171,7 +195,7 @@
                     email: email,
                     password: password,
                     name: name,
-                    balance: 100 // Начальный баланс
+                    balance: 0 // Начальный баланс
                 };
                 
                 // Добавляем в "базу данных"
@@ -188,12 +212,17 @@
                 }, 1500);
             });
             
-            // Проверка, вошел ли пользователь уже в систему
+            // Для тестирования страницы логина, автоматический редирект отключен
+            // Чтобы включить автоматический переход на главную страницу для уже авторизованных пользователей, 
+            // раскомментируйте код ниже:
+            
+            /*
             const currentUser = JSON.parse(localStorage.getItem('currentUser'));
             if (currentUser) {
                 // Пользователь уже вошел в систему, перенаправляем на главную страницу
                 window.location.href = 'index.html';
             }
+            */
         });
     </script>
     
@@ -284,6 +313,17 @@
         
         .login-hint a:hover {
             text-shadow: 0 0 5px var(--casino-gold);
+        }
+        
+        .clear-storage {
+            display: inline-block;
+            margin-top: 8px;
+            font-size: 0.85rem;
+            color: #aaa !important;
+        }
+        
+        .clear-storage:hover {
+            color: var(--casino-red) !important;
         }
         
         .login-message {
