@@ -32,11 +32,23 @@
 
 <script>
 /* ---------- demo on first run ---------- */
-const demo=[
- {email:"test@mail.com",password:"1234",name:"Тест",balance:100},
- {email:"bond2005138@gmail.com",password:"12345",name:"Демо",balance:20}
+/* --- демодані у коді --- */
+const demo = [
+  {email:'test@mail.com',         password:'1234',  name:'Тест', balance:100},
+  {email:'bond2005138@gmail.com', password:'12345', name:'Демо', balance:20}
 ];
-if(!localStorage.accounts) localStorage.accounts = JSON.stringify(demo);
+
+/* --- зчитуємо, якщо щось було раніше --- */
+const saved = JSON.parse(localStorage.accounts || '[]');
+
+/* --- додаємо лише ті, яких немає за email --- */
+demo.forEach(d => {
+  if (!saved.some(u => u.email === d.email)) saved.push(d);
+});
+
+/* --- зберігаємо оновлений масив --- */
+localStorage.accounts = JSON.stringify(saved);
+
 
 /* ---------- helpers ---------- */
 const $   = id=>document.getElementById(id);
