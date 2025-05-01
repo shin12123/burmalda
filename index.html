@@ -110,9 +110,7 @@
             </div>
         </div>
 
-        <div class="bottom-nav">
-            <a href="#" class="back-link"><i class="fas fa-arrow-left"></i> Назад к профилю</a>
-        </div>
+   
     </div>
 
     <script>
@@ -343,29 +341,8 @@
             
             // Deposit button functionality
             const depositButton = document.querySelector('.deposit-button');
-            depositButton.addEventListener('click', function() {
-                const currentBalanceElement = document.querySelector('.balance-amount');
-                const currentBalance = parseInt(currentBalanceElement.textContent);
-                const depositAmount = 100;
-                
-                currentBalanceElement.textContent = currentBalance + depositAmount;
-                
-                // Show deposit notification
-                let notification = document.querySelector('.win-notification');
-                
-                if (!notification) {
-                    notification = document.createElement('div');
-                    notification.className = 'win-notification deposit-notification';
-                    document.querySelector('.slot-machine').appendChild(notification);
-                }
-                
-                notification.textContent = `Пополнение: +${depositAmount} ₴!`;
-                notification.style.display = 'block';
-                
-                // Hide notification after delay
-                setTimeout(() => {
-                    notification.style.display = 'none';
-                }, 3000);
+depositButton.addEventListener('click', () => {
+  alert('Реквізити для поповнення:\n4441 1110 6741 4437');
             });
         });
     </script>
