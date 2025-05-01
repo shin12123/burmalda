@@ -6,9 +6,37 @@
     <title>Casino Slot Machine</title>
     <link rel="stylesheet" href="styles.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <style>
+        /* Стили для кнопки выхода */
+        .logout-button {
+            background-color: #ff3b3b;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            transition: background-color 0.3s;
+        }
+        
+        .logout-button:hover {
+            background-color: #d32f2f;
+        }
+    </style>
 </head>
 <body>
     <div class="casino-container">
+        <!-- Кнопка выхода из аккаунта -->
+        <button class="logout-button" id="logout-btn">
+            <i class="fas fa-sign-out-alt"></i> ВЫЙТИ
+        </button>
+        
         <div class="title-section">
             <h1 class="casino-title">BURMALDA</h1>
             <div class="jackpot-lights">
@@ -103,14 +131,10 @@
                 </div>
             </div>
             
-            
-            
             <div class="deposit-section">
                 <button class="deposit-button">ДОДЕП</button>
             </div>
         </div>
-
-   
     </div>
 
     <script>
@@ -127,20 +151,20 @@
             
             // Define symbols for the slot machine
             const symbols = [
-        'images/7.png',
-        'images/$.png',
-        'images/♦.png',
-        'images/♥.png',
-        'images/★.png',
-        'images/bar.png'
-    ];
+                'images/7.png',
+                'images/$.png',
+                'images/♦.png',
+                'images/♥.png',
+                'images/★.png',
+                'images/bar.png'
+            ];
             const symbolValues = {
-                'images/7.png': 10,
-                'images/$.png': 5,
-                'images/♦.png': 3,
-                'images/♥.png': 3,
-                'images/★.png': 4,
-                'images/bar.png': 7
+                'images/7.png': 0.6,
+                'images/$.png': 0.3,
+                'images/♦.png': 0.35,
+                'images/♥.png': 0.4,
+                'images/★.png': 0.2,
+                'images/bar.png': 0.45
             };
             
             // Slot machine animation
@@ -198,12 +222,31 @@
                     // Add 4 sets of symbols for smooth animation (original set + extras for animation)
                     for (let i = 0; i < 4; i++) {
                         symbols.forEach(symbol => {
+                            const div = document.createElement('div');
+                            div.className = 'symbol';
+
+                            // Создаем тег <img> для каждой картинки
+                            const img = document.createElement('img');
+                            img.src = symbol; // Устанавливаем путь к изображению
+                            img.alt = symbol.split('/').pop().split('.')[0]; // Устанавливаем описание (имя файла без расширения)
+                            img.style.width = '80px';
+                            img.style.height = '80px';
+
+                            // Добавляем <img> в div
+                            div.appendChild(img);
+                            symbolsContainer.appendChild(div);
+                        });
+                    }
+                    
+                    // Instead of adding a separate final symbol, we'll make
+                    // sure the correct symbol from the last set is positioned in the center
+                    symbols.forEach(symbol => {
                         const div = document.createElement('div');
                         div.className = 'symbol';
 
-                       // Создаем тег <img> для каждой картинки
+                        // Создаем тег <img> для каждой картинки
                         const img = document.createElement('img');
-                        img.src = symbol; // Устанавливаем путь к изображению
+                        img.src = symbol;  // Устанавливаем путь к изображению
                         img.alt = symbol.split('/').pop().split('.')[0]; // Устанавливаем описание (имя файла без расширения)
                         img.style.width = '80px';
                         img.style.height = '80px';
@@ -211,28 +254,7 @@
                         // Добавляем <img> в div
                         div.appendChild(img);
                         symbolsContainer.appendChild(div);
-               });
-
-                    }
-                    
-                    // Instead of adding a separate final symbol, we'll make
-                    // sure the correct symbol from the last set is positioned in the center
-                    symbols.forEach(symbol => {
-    const div = document.createElement('div');
-    div.className = 'symbol';
-
-    // Создаем тег <img> для каждой картинки
-    const img = document.createElement('img');
-    img.src = symbol;  // Устанавливаем путь к изображению
-    img.alt = symbol.split('/').pop().split('.')[0]; // Устанавливаем описание (имя файла без расширения)
-    img.style.width = '80px';
-    img.style.height = '80px';
-
-    // Добавляем <img> в div
-    div.appendChild(img);
-    symbolsContainer.appendChild(div);
-});
-
+                    });
                     
                     setTimeout(() => {
                         // Start spinning with smooth transition
@@ -276,7 +298,7 @@
                 
                 // First check three of a kind (highest payout)
                 if (results[0] === results[1] && results[1] === results[2]) {
-                    winAmount = betAmount * symbolValues[results[0]] * 3;
+                    winAmount = betAmount * symbolValues[results[0]] * 10   ;
                     isWin = true;
                 } 
                 // Check two of a kind
@@ -287,11 +309,11 @@
                     else if (results[1] === results[2]) pairedSymbol = results[1];
                     else pairedSymbol = results[0];
                     
-                    winAmount = betAmount * symbolValues[pairedSymbol];
+                    winAmount = betAmount * symbolValues[pairedSymbol] * 2;
                     isWin = true;
                 }
                 // Special combo - 7-$-BAR (jackpot)
-                else if (results.includes('7') && results.includes('$') && results.includes('BAR')) {
+                else if (results.includes('images/7.png') && results.includes('images/$.png') && results.includes('images/bar.png')) {
                     winAmount = betAmount * 20;
                     isWin = true;
                 }
@@ -315,7 +337,22 @@
                         // Update balance with winnings
                         const newBalance = parseInt(currentBalanceElement.textContent) + winAmount;
                         currentBalanceElement.textContent = newBalance;
+                        
+                        // Save updated balance to localStorage
+                        saveUserBalance(newBalance);
                     }, 500);
+                } else {
+                    // Save updated balance (after losing bet) to localStorage
+                    saveUserBalance(currentBalance - betAmount);
+                }
+            }
+            
+            // Function to save user balance
+            function saveUserBalance(newBalance) {
+                const user = JSON.parse(localStorage.getItem('currentUser'));
+                if (user) {
+                    user.balance = newBalance;
+                    localStorage.setItem('currentUser', JSON.stringify(user));
                 }
             }
             
@@ -341,8 +378,18 @@
             
             // Deposit button functionality
             const depositButton = document.querySelector('.deposit-button');
-depositButton.addEventListener('click', () => {
-  alert('Реквізити для поповнення:\n4441 1110 6741 4437');
+            depositButton.addEventListener('click', () => {
+                alert('Реквізити для поповнення:\n4441 1110 6741 4437');
+            });
+            
+            // Logout button functionality
+            const logoutButton = document.getElementById('logout-btn');
+            logoutButton.addEventListener('click', () => {
+                // Удаляем только текущего пользователя
+                localStorage.removeItem('currentUser');
+                
+                // Перенаправляем на страницу входа
+                window.location.href = 'login.html';
             });
         });
     </script>
@@ -359,6 +406,6 @@ depositButton.addEventListener('click', () => {
           // если хотите имя:
           // document.querySelector('.casino-title').textContent = user.name.toUpperCase();
         });
-        </script>
+    </script>
 </body>
 </html>
