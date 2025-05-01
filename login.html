@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8">
+  <title>Casino | Login / Admin</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <link rel="stylesheet" href="styles.css">
+  <style>          /* мелкие добивки */
+    .admin-btn  {margin-top:20px;font-size:.9rem;color:var(--casino-gold);cursor:pointer}
+    .user-table {width:100%;margin-top:15px;border-collapse:collapse;font-size:.9rem}
+    .user-table th,.user-table td{border:1px solid var(--casino-gold);padding:6px;text-align:center}
+    .del-btn{cursor:pointer;color:#ff7070}
+    .hidden   {display:none}
+  </style>
+</head>
+<body>
+<div class="casino-container login-container">
+
+  <!-- ======== LOGIN ======== -->
+  <h1 class="casino-title">LOGIN</h1>
+  <form id="loginForm" class="login-form">
+      <input class="login-input"  type="email"    id="email"    placeholder="Email"  required>
+      <input class="login-input"  type="password" id="password" placeholder="Пароль" required>
+      <button class="login-button" type="submit">Увійти</button>
+      <div id="message" class="login-message"></div>
+      <div class="admin-btn" id="openAdmin">⇢ Управління користувачами</div>
+  </form>
+  
+  <!-- ======== ADMIN PANEL ======== -->
+
+</div>
+
+<script>
+/* ---------- demo on first run ---------- */
+const demo=[
+ {email:"test@mail.com",password:"1234",name:"Тест",balance:100},
+ {email:"d.ganzina@gmail.com",password:"demo",name:"Демо",balance:50}
+];
+if(!localStorage.accounts) localStorage.accounts = JSON.stringify(demo);
+
+/* ---------- helpers ---------- */
+const $   = id=>document.getElementById(id);
+const acc = ()=>JSON.parse(localStorage.accounts);
+const save=a=>localStorage.accounts = JSON.stringify(a);
+const login=u=>{localStorage.currentUser=JSON.stringify(u);location='index.html';};
+
+/* ---------- login ---------- */
+$('loginForm').onsubmit=e=>{
+ e.preventDefault();$('message').textContent='';
+ const email=$('email').value.trim().toLowerCase(), pass=$('password').value;
+ const user=acc().find(u=>u.email===email);
+ if(!user)             {$('message').textContent='Email не знайдено';return;}
+ if(user.password!==pass){$('message').textContent='Невірний пароль';return;}
+ login(user);
+};
+
+/* ---------- admin panel ---------- */
+function renderTable(){
+ const rows=acc().map((u,i)=>`
+  <tr><td>${i+1}</td><td>${u.name}</td><td>${u.email}</td><td>${u.balance}</td>
+      <td class="del-btn" data-i="${i}">✖</td></tr>`).join('');
+ $('userTable').innerHTML = `<tr><th>#</th><th>Ім’я</th><th>Email</th><th>Баланс</th><th>Del</th></tr>`+rows;
+}
+
+/* open / back */
+$('openAdmin').onclick = ()=>{ $('loginForm').classList.add('hidden'); $('adminPanel').classList.remove('hidden'); renderTable(); };
+$('backToLogin').onclick = ()=>{ $('adminPanel').classList.add('hidden'); $('loginForm').classList.remove('hidden'); };
+
+/* add user */
+$('addForm').onsubmit=e=>{
+ e.preventDefault();
+ const name=$('newName').value.trim(), email=$('newEmail').value.trim().toLowerCase(),
+       pwd=$('newPass').value, bal=+$('newBalance').value;
+ let list=acc();
+ if(list.find(u=>u.email===email)){ alert('Email уже існує'); return;}
+ list.push({email,password:pwd,name,balance:bal}); save(list);
+ e.target.reset(); renderTable();
+};
+
+/* delete user (делегирование) */
+$('userTable').onclick=e=>{
+ if(!e.target.classList.contains('del-btn')) return;
+ const idx=+e.target.dataset.i;
+ let list=acc(); list.splice(idx,1); save(list); renderTable();
+};
+</script>
+</body>
+</html>

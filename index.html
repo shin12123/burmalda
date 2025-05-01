@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Casino Slot Machine</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="casino-container">
+        <div class="title-section">
+            <h1 class="casino-title">BURMALDA</h1>
+            <div class="jackpot-lights">
+                <div class="light"></div>
+                <div class="light"></div>
+                <div class="light"></div>
+                <div class="light"></div>
+                <div class="light"></div>
+                <div class="light"></div>
+                <div class="light"></div>
+                <div class="light"></div>
+            </div>
+        </div>
+
+        <div class="slot-machine">
+            <div class="balance-display">
+                <h2>Ваш баланс: <span class="balance-amount"></span>₴</h2>
+            </div>
+
+            <div class="bet-section">
+                <label for="bet-amount">Введите вашу ставку:</label>
+                <input type="number" id="bet-amount" min="1" max="50" value="5">
+                <button class="spin-button">SPIN <i class="fas fa-sync"></i></button>
+            </div>
+
+            <div class="reels-container">
+                <div class="reel" id="reel1">
+                    <div class="symbols-container">
+                        <div class="symbol">
+                            <img src="images/7.png" alt="7" style="width: 80px; height: 80px;">
+                        </div>
+                        <div class="symbol">
+                            <img src="images/$.png" alt="$" style="width: 80px; height: 80px;">
+                        </div>
+                        <div class="symbol">
+                            <img src="images/♦.png" alt="♦" style="width: 80px; height: 80px;">
+                        </div>
+                        <div class="symbol">
+                            <img src="images/♥.png" alt="♥" style="width: 80px; height: 80px;">
+                        </div>
+                        <div class="symbol">
+                            <img src="images/★.png" alt="★" style="width: 80px; height: 80px;">
+                        </div>
+                        <div class="symbol">
+                            <img src="images/bar.png" alt="BAR" style="width: 80px; height: 80px;">
+                        </div>
+                    </div>
+                </div>
+                <div class="reel" id="reel2">
+                    <div class="symbols-container">
+                        <div class="symbol">
+                            <img src="images/$.png" alt="$" style="width: 80px; height: 80px;">
+                        </div>
+                        <div class="symbol">
+                            <img src="images/♦.png" alt="♦" style="width: 80px; height: 80px;">
+                        </div>
+                        <div class="symbol">
+                            <img src="images/♥.png" alt="♥" style="width: 80px; height: 80px;">
+                        </div>
+                        <div class="symbol">
+                            <img src="images/★.png" alt="★" style="width: 80px; height: 80px;">
+                        </div>
+                        <div class="symbol">
+                            <img src="images/bar.png" alt="BAR" style="width: 80px; height: 80px;">
+                        </div>
+                        <div class="symbol">
+                            <img src="images/7.png" alt="7" style="width: 80px; height: 80px;">
+                        </div>
+                    </div>
+                </div>
+                <div class="reel" id="reel3">
+                    <div class="symbols-container">
+                        <div class="symbol">
+                            <img src="images/♦.png" alt="♦" style="width: 80px; height: 80px;">
+                        </div>
+                        <div class="symbol">
+                            <img src="images/♥.png" alt="♥" style="width: 80px; height: 80px;">
+                        </div>
+                        <div class="symbol">
+                            <img src="images/★.png" alt="★" style="width: 80px; height: 80px;">
+                        </div>
+                        <div class="symbol">
+                            <img src="images/bar.png" alt="BAR" style="width: 80px; height: 80px;">
+                        </div>
+                        <div class="symbol">
+                            <img src="images/7.png" alt="7" style="width: 80px; height: 80px;">
+                        </div>
+                        <div class="symbol">
+                            <img src="images/$.png" alt="$" style="width: 80px; height: 80px;">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            
+            
+            <div class="deposit-section">
+                <button class="deposit-button">ДОДЕП</button>
+            </div>
+        </div>
+
+        <div class="bottom-nav">
+            <a href="#" class="back-link"><i class="fas fa-arrow-left"></i> Назад к профилю</a>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Simple animation for the lights
+            const lights = document.querySelectorAll('.light');
+            setInterval(() => {
+                lights.forEach((light, index) => {
+                    setTimeout(() => {
+                        light.classList.toggle('active');
+                    }, index * 100);
+                });
+            }, 1000);
+            
+            // Define symbols for the slot machine
+            const symbols = [
+        'images/7.png',
+        'images/$.png',
+        'images/♦.png',
+        'images/♥.png',
+        'images/★.png',
+        'images/bar.png'
+    ];
+            const symbolValues = {
+                'images/7.png': 10,
+                'images/$.png': 5,
+                'images/♦.png': 3,
+                'images/♥.png': 3,
+                'images/★.png': 4,
+                'images/bar.png': 7
+            };
+            
+            // Slot machine animation
+            const spinButton = document.querySelector('.spin-button');
+            const reels = document.querySelectorAll('.reel');
+            let isSpinning = false;
+            let currentResults = ['images/7.png', 'images/$.png', 'images/♦.png']; // Default starting symbols
+            
+            // Generate random symbol
+            function getRandomSymbol() {
+                return symbols[Math.floor(Math.random() * symbols.length)];
+            }
+            
+            spinButton.addEventListener('click', function() {
+                if (isSpinning) return;
+                
+                // Get bet amount
+                const betAmount = parseInt(document.getElementById('bet-amount').value);
+                if (isNaN(betAmount) || betAmount < 1) {
+                    alert('Пожалуйста, введите корректную ставку!');
+                    return;
+                }
+                
+                // Check if player has enough balance
+                const currentBalanceElement = document.querySelector('.balance-amount');
+                const currentBalance = parseInt(currentBalanceElement.textContent);
+                
+                if (currentBalance < betAmount) {
+                    alert('Недостаточно средств на балансе!');
+                    return;
+                }
+                
+                isSpinning = true;
+                spinButton.disabled = true;
+                spinButton.classList.add('disabled');
+                
+                // Reset win animation if active
+                const container = document.querySelector('.casino-container');
+                container.classList.remove('win-animation');
+                
+                // Generate new random results for this spin
+                const newResults = [getRandomSymbol(), getRandomSymbol(), getRandomSymbol()];
+                
+                // Animate each reel with different timing
+                reels.forEach((reel, index) => {
+                    const symbolsContainer = reel.querySelector('.symbols-container');
+                    
+                    // Reset position
+                    symbolsContainer.style.transition = 'none';
+                    symbolsContainer.style.transform = 'translateY(0)';
+                    
+                    // Clone the symbols for continuous rotation
+                    symbolsContainer.innerHTML = '';
+                    
+                    // Add 4 sets of symbols for smooth animation (original set + extras for animation)
+                    for (let i = 0; i < 4; i++) {
+                        symbols.forEach(symbol => {
+                        const div = document.createElement('div');
+                        div.className = 'symbol';
+
+                       // Создаем тег <img> для каждой картинки
+                        const img = document.createElement('img');
+                        img.src = symbol; // Устанавливаем путь к изображению
+                        img.alt = symbol.split('/').pop().split('.')[0]; // Устанавливаем описание (имя файла без расширения)
+                        img.style.width = '80px';
+                        img.style.height = '80px';
+
+                        // Добавляем <img> в div
+                        div.appendChild(img);
+                        symbolsContainer.appendChild(div);
+               });
+
+                    }
+                    
+                    // Instead of adding a separate final symbol, we'll make
+                    // sure the correct symbol from the last set is positioned in the center
+                    symbols.forEach(symbol => {
+    const div = document.createElement('div');
+    div.className = 'symbol';
+
+    // Создаем тег <img> для каждой картинки
+    const img = document.createElement('img');
+    img.src = symbol;  // Устанавливаем путь к изображению
+    img.alt = symbol.split('/').pop().split('.')[0]; // Устанавливаем описание (имя файла без расширения)
+    img.style.width = '80px';
+    img.style.height = '80px';
+
+    // Добавляем <img> в div
+    div.appendChild(img);
+    symbolsContainer.appendChild(div);
+});
+
+                    
+                    setTimeout(() => {
+                        // Start spinning with smooth transition
+                        symbolsContainer.style.transition = 'transform 3s cubic-bezier(.45,.05,.55,.95)';
+                        
+                        // Calculate final position to show the correct symbol
+                        const symbolHeight = 100; // height of a symbol in pixels
+                        // Calculate the position that centers the symbol in the viewport
+                        const symbolsCount = 4 * symbols.length + 1; // Total symbols (4 sets + final symbol)
+                        const finalSymbolIndex = symbols.indexOf(newResults[index]); // Index of final symbol in last set
+                        
+                        // This ensures the final symbol appears centered in the viewport
+                        const finalSymbolPosition = ((4 * symbols.length) + finalSymbolIndex) * symbolHeight;
+                        
+                        symbolsContainer.style.transform = `translateY(-${finalSymbolPosition}px)`;
+                    }, 10 + (index * 200)); // Start each reel with a slight delay
+                    
+                    // Stop spinning after delay
+                    setTimeout(() => {
+                        if (index === reels.length - 1) { // Last reel
+                            isSpinning = false;
+                            spinButton.disabled = false;
+                            spinButton.classList.remove('disabled');
+                            
+                            // Update the current results
+                            currentResults = newResults;
+                            
+                            // Check for win
+                            checkForWin(currentResults, betAmount);
+                        }
+                    }, 3000 + (index * 500)); // Stop each reel with a delay
+                });
+            });
+            
+            // Function to check if player won
+            function checkForWin(results, betAmount) {
+                let winAmount = 0;
+                let isWin = false;
+                const currentBalanceElement = document.querySelector('.balance-amount');
+                const currentBalance = parseInt(currentBalanceElement.textContent);
+                
+                // First check three of a kind (highest payout)
+                if (results[0] === results[1] && results[1] === results[2]) {
+                    winAmount = betAmount * symbolValues[results[0]] * 3;
+                    isWin = true;
+                } 
+                // Check two of a kind
+                else if (results[0] === results[1] || results[1] === results[2] || results[0] === results[2]) {
+                    // Find which symbol is paired
+                    let pairedSymbol;
+                    if (results[0] === results[1]) pairedSymbol = results[0];
+                    else if (results[1] === results[2]) pairedSymbol = results[1];
+                    else pairedSymbol = results[0];
+                    
+                    winAmount = betAmount * symbolValues[pairedSymbol];
+                    isWin = true;
+                }
+                // Special combo - 7-$-BAR (jackpot)
+                else if (results.includes('7') && results.includes('$') && results.includes('BAR')) {
+                    winAmount = betAmount * 20;
+                    isWin = true;
+                }
+                
+                // Always subtract the bet
+                currentBalanceElement.textContent = (currentBalance - betAmount);
+                
+                if (isWin) {
+                    // Win animation
+                    setTimeout(() => {
+                        const container = document.querySelector('.casino-container');
+                        container.classList.add('win-animation');
+                        
+                        // Add win notification
+                        showWinNotification(winAmount);
+                        
+                        setTimeout(() => {
+                            container.classList.remove('win-animation');
+                        }, 3000);
+                        
+                        // Update balance with winnings
+                        const newBalance = parseInt(currentBalanceElement.textContent) + winAmount;
+                        currentBalanceElement.textContent = newBalance;
+                    }, 500);
+                }
+            }
+            
+            // Function to show win notification
+            function showWinNotification(amount) {
+                // Create or update win notification
+                let notification = document.querySelector('.win-notification');
+                
+                if (!notification) {
+                    notification = document.createElement('div');
+                    notification.className = 'win-notification';
+                    document.querySelector('.slot-machine').appendChild(notification);
+                }
+                
+                notification.textContent = `Выигрыш: ${amount}₴!`;
+                notification.style.display = 'block';
+                
+                // Hide notification after delay
+                setTimeout(() => {
+                    notification.style.display = 'none';
+                }, 3000);
+            }
+            
+            // Deposit button functionality
+            const depositButton = document.querySelector('.deposit-button');
+            depositButton.addEventListener('click', function() {
+                const currentBalanceElement = document.querySelector('.balance-amount');
+                const currentBalance = parseInt(currentBalanceElement.textContent);
+                const depositAmount = 100;
+                
+                currentBalanceElement.textContent = currentBalance + depositAmount;
+                
+                // Show deposit notification
+                let notification = document.querySelector('.win-notification');
+                
+                if (!notification) {
+                    notification = document.createElement('div');
+                    notification.className = 'win-notification deposit-notification';
+                    document.querySelector('.slot-machine').appendChild(notification);
+                }
+                
+                notification.textContent = `Пополнение: +${depositAmount} ₴!`;
+                notification.style.display = 'block';
+                
+                // Hide notification after delay
+                setTimeout(() => {
+                    notification.style.display = 'none';
+                }, 3000);
+            });
+        });
+    </script>
+    <script>
+        /* ---------- 0. Проверяем вход ---------- */
+        const user = JSON.parse(localStorage.getItem('currentUser') || 'null');
+        if (!user) {               // нет авторизации → назад на login
+          location = 'login.html';
+        }
+        
+        /* Вставляем имя и баланс на страницу */
+        window.addEventListener('DOMContentLoaded', () => {
+          document.querySelector('.balance-amount').textContent = user.balance;
+          // если хотите имя:
+          // document.querySelector('.casino-title').textContent = user.name.toUpperCase();
+        });
+        </script>
+</body>
+</html>
